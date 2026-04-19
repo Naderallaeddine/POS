@@ -2,5 +2,77 @@
     ViewData["Title"] = "Reports";
 }
 
-<h1 class="h3 mb-3">Reports</h1>
-<p class="text-muted">Operational and financial reporting views will aggregate data from sales and inventory.</p>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Reports</h1>
+        <div class="text-muted small">Management-ready summaries for sales, stock, profit, and expenses</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-4">
+        <a class="card border-0 shadow-sm text-decoration-none h-100" asp-action="DailySales">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Daily sales</div>
+                        <div class="text-muted small">Totals by day</div>
+                    </div>
+                    <i class="bi bi-calendar-day fs-3 text-primary"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <a class="card border-0 shadow-sm text-decoration-none h-100" asp-action="MonthlySales">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Monthly sales</div>
+                        <div class="text-muted small">Totals by month</div>
+                    </div>
+                    <i class="bi bi-calendar3 fs-3 text-primary"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <a class="card border-0 shadow-sm text-decoration-none h-100" asp-action="Stock">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Stock</div>
+                        <div class="text-muted small">Inventory snapshot</div>
+                    </div>
+                    <i class="bi bi-boxes fs-3 text-primary"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <a class="card border-0 shadow-sm text-decoration-none h-100" asp-action="Profit">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Profit</div>
+                        <div class="text-muted small">Sales, COGS, expenses</div>
+                    </div>
+                    <i class="bi bi-cash-coin fs-3 text-primary"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-xl-4">
+        <a class="card border-0 shadow-sm text-decoration-none h-100" asp-action="Expenses">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Expenses</div>
+                        <div class="text-muted small">Outflows tracking</div>
+                    </div>
+                    <i class="bi bi-receipt-cutoff fs-3 text-primary"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

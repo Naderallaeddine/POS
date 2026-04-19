@@ -1,0 +1,107 @@
+@model POS.ViewModels.Reports.ProfitReportViewModel
+@{
+    ViewData["Title"] = "Profit report";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Profit report</h1>
+        <div class="text-muted small">Sales, estimated COGS, and expenses</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">Back</a>
+</div>
+
+<div class="alert alert-info">
+    Profit uses an <strong>estimated COGS</strong> based on current product cost price. For fully historical profit accuracy, store cost on each sale item at time of sale.
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-lg-3">
+                <label class="form-label">From</label>
+                <input type="date" name="dateFrom" value="@(Model.Filter.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label">To</label>
+                <input type="date" name="dateTo" value="@(Model.Filter.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-12 col-lg-2 d-grid">
+                <button class="btn btn-outline-secondary" type="submit">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Sales</div>
+                <div class="fs-5 fw-semibold">@Model.SalesTotal.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Estimated COGS</div>
+                <div class="fs-5 fw-semibold">@Model.EstimatedCogsTotal.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Gross profit</div>
+                <div class="fs-5 fw-semibold">@Model.GrossProfit.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Net profit</div>
+                <div class="fs-5 fw-semibold">@Model.NetProfit.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th class="text-end text-nowrap">Sales</th>
+                        <th class="text-end text-nowrap">Est. COGS</th>
+                        <th class="text-end text-nowrap">Expenses</th>
+                        <th class="text-end text-nowrap">Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Rows.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-muted">No data for the selected range.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var r in Model.Rows)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@r.Date.ToString("yyyy-MM-dd")</td>
+                                <td class="text-end">@r.SalesTotal.ToString("C")</td>
+                                <td class="text-end">@r.EstimatedCogsTotal.ToString("C")</td>
+                                <td class="text-end">@r.ExpensesTotal.ToString("C")</td>
+                                <td class="text-end fw-semibold">@r.NetProfit.ToString("C")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

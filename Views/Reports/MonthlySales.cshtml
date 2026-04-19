@@ -1,0 +1,68 @@
+@model POS.ViewModels.Reports.MonthlySalesReportViewModel
+@{
+    ViewData["Title"] = "Monthly sales report";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Monthly sales report</h1>
+        <div class="text-muted small">Totals grouped by month</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">Back</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-lg-3">
+                <label class="form-label">From</label>
+                <input type="date" name="dateFrom" value="@(Model.Filter.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-6 col-lg-3">
+                <label class="form-label">To</label>
+                <input type="date" name="dateTo" value="@(Model.Filter.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-12 col-lg-2 d-grid">
+                <button class="btn btn-outline-secondary" type="submit">Apply</button>
+            </div>
+            <div class="col-12 col-lg-4 text-lg-end">
+                <div class="text-muted small">Invoices: <strong>@Model.InvoicesCount</strong></div>
+                <div class="text-muted small">Total sales: <strong>@Model.TotalSales.ToString("C")</strong></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Month</th>
+                        <th class="text-end text-nowrap">Invoices</th>
+                        <th class="text-end text-nowrap">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Rows.Count == 0)
+                    {
+                        <tr><td colspan="3" class="text-muted">No data for the selected range.</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var r in Model.Rows)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@($"{r.Year}-{r.Month:00}")</td>
+                                <td class="text-end">@r.InvoicesCount</td>
+                                <td class="text-end fw-semibold">@r.TotalSales.ToString("C")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
