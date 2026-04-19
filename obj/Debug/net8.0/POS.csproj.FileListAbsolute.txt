@@ -149,3 +149,4 @@ C:\Users\HP\source\repos\POS\POS\obj\Debug\net8.0\refint\POS.dll
 C:\Users\HP\source\repos\POS\POS\obj\Debug\net8.0\POS.pdb
 C:\Users\HP\source\repos\POS\POS\obj\Debug\net8.0\POS.genruntimeconfig.cache
 C:\Users\HP\source\repos\POS\POS\obj\Debug\net8.0\ref\POS.dll
+C:\Users\HP\source\repos\POS\POS\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
