@@ -1,0 +1,76 @@
+@model POS.ViewModels.Products.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Products</h1>
+        <div class="text-muted small">Manage your catalog, pricing, and inventory</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary btn-sm" asp-controller="Categories" asp-action="Index">Categories</a>
+        <a class="btn btn-primary btn-sm" asp-action="Create">Add product</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th class="text-nowrap">Barcode</th>
+                        <th>Category</th>
+                        <th class="text-end text-nowrap">Cost</th>
+                        <th class="text-end text-nowrap">Sale</th>
+                        <th class="text-end text-nowrap">Stock</th>
+                        <th class="text-nowrap">Status</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Products.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="8" class="text-muted">No products yet. Add your first product.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var p in Model.Products)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@p.Name</td>
+                                <td class="text-muted">@p.Barcode</td>
+                                <td>@p.CategoryName</td>
+                                <td class="text-end">@p.CostPrice.ToString("C")</td>
+                                <td class="text-end fw-semibold">@p.SalePrice.ToString("C")</td>
+                                <td class="text-end">@p.StockQuantity</td>
+                                <td>
+                                    @if (p.IsActive)
+                                    {
+                                        <span class="badge text-bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+                                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this product?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

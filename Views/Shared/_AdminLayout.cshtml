@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - POS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/POS.styles.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <div class="admin-shell d-flex">
+        <aside class="admin-sidebar border-end bg-dark text-white">
+            <div class="p-3 border-bottom border-secondary">
+                <a class="text-white text-decoration-none fw-semibold d-flex align-items-center gap-2" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-shop"></i>
+                    <span>POS Console</span>
+                </a>
+            </div>
+            <nav class="nav flex-column px-2 py-3 gap-1 admin-nav">
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active text-white" : "")"
+                   asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active text-white" : "")"
+                   asp-controller="Products" asp-action="Index">
+                    <i class="bi bi-box-seam me-2"></i>Products
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active text-white" : "")"
+                   asp-controller="Customers" asp-action="Index">
+                    <i class="bi bi-people me-2"></i>Customers
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Suppliers" ? "active text-white" : "")"
+                   asp-controller="Suppliers" asp-action="Index">
+                    <i class="bi bi-truck me-2"></i>Suppliers
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active text-white" : "")"
+                   asp-controller="Sales" asp-action="Index">
+                    <i class="bi bi-receipt me-2"></i>Sales
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Purchases" ? "active text-white" : "")"
+                   asp-controller="Purchases" asp-action="Index">
+                    <i class="bi bi-bag-check me-2"></i>Purchases
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active text-white" : "")"
+                   asp-controller="Reports" asp-action="Index">
+                    <i class="bi bi-graph-up-arrow me-2"></i>Reports
+                </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active text-white" : "")"
+                   asp-controller="Settings" asp-action="Index">
+                    <i class="bi bi-gear me-2"></i>Settings
+                </a>
+            </nav>
+        </aside>
+        <div class="admin-main flex-grow-1 d-flex flex-column min-vh-100">
+            <header class="admin-topbar border-bottom bg-white">
+                <div class="container-fluid py-2 d-flex align-items-center justify-content-between">
+                    <div class="text-muted small">@ViewData["Title"]</div>
+                    <partial name="_LoginPartial" />
+                </div>
+            </header>
+            <main class="flex-grow-1 p-4 bg-light">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

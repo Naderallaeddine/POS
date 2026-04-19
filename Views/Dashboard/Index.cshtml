@@ -1,0 +1,183 @@
+@model POS.ViewModels.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Dashboard</h1>
+        <div class="text-muted small">Overview of today’s activity and key KPIs</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-outline-secondary btn-sm" asp-controller="Reports" asp-action="Index">
+            View reports
+        </a>
+        <a class="btn btn-primary btn-sm" asp-controller="Sales" asp-action="Index">
+            New sale
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-muted small">Today’s sales</div>
+                        <div class="fs-3 fw-semibold">@Model.TodaysSalesTotal.ToString("C")</div>
+                    </div>
+                    <div class="bg-primary-subtle text-primary rounded-3 p-2">
+                        <i class="bi bi-receipt fs-4"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2">Total revenue recorded today</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-muted small">Products</div>
+                        <div class="fs-3 fw-semibold">@Model.ProductsCount</div>
+                    </div>
+                    <div class="bg-success-subtle text-success rounded-3 p-2">
+                        <i class="bi bi-box-seam fs-4"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2">Active catalog count</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-muted small">Customers</div>
+                        <div class="fs-3 fw-semibold">@Model.CustomersCount</div>
+                    </div>
+                    <div class="bg-info-subtle text-info rounded-3 p-2">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2">Customer records in CRM</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-muted small">Low stock</div>
+                        <div class="fs-3 fw-semibold">@Model.LowStockProducts.Count</div>
+                    </div>
+                    <div class="bg-warning-subtle text-warning rounded-3 p-2">
+                        <i class="bi bi-exclamation-triangle fs-4"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2">At or below reorder level</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Low stock products</div>
+                        <div class="text-muted small">Threshold uses product reorder level, fallback @Model.LowStockThreshold</div>
+                    </div>
+                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Products" asp-action="Index">Manage</a>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                @if (Model.LowStockProducts.Count == 0)
+                {
+                    <div class="text-muted">No low stock items right now.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-nowrap">SKU</th>
+                                    <th class="text-end text-nowrap">Stock</th>
+                                    <th class="text-end text-nowrap">Reorder</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in Model.LowStockProducts)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@p.Name</td>
+                                        <td class="text-muted">@p.Sku</td>
+                                        <td class="text-end">@p.CurrentStock</td>
+                                        <td class="text-end">@p.ReorderLevel</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-semibold">Recent sales</div>
+                        <div class="text-muted small">Latest transactions</div>
+                    </div>
+                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Sales" asp-action="Index">View all</a>
+                </div>
+            </div>
+            <div class="card-body pt-3">
+                @if (Model.RecentSales.Count == 0)
+                {
+                    <div class="text-muted">No sales yet.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-nowrap">Receipt</th>
+                                    <th>Customer</th>
+                                    <th class="text-nowrap">Date</th>
+                                    <th class="text-end text-nowrap">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.RecentSales)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@s.ReceiptNumber</td>
+                                        <td class="text-muted">@(string.IsNullOrWhiteSpace(s.CustomerName) ? "Walk-in" : s.CustomerName)</td>
+                                        <td class="text-muted">@s.SaleDate.LocalDateTime.ToString("g")</td>
+                                        <td class="text-end fw-semibold">@s.Total.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
