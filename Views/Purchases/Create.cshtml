@@ -1,0 +1,211 @@
+@model POS.ViewModels.Purchases.PurchaseCreateViewModel
+@{
+    ViewData["Title"] = "New purchase";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">New purchase</h1>
+        <div class="text-muted small">Receive products and update inventory</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">Back</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form asp-action="Create" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-12 col-lg-5">
+                    <label asp-for="SupplierId" class="form-label"></label>
+                    <select asp-for="SupplierId" asp-items="Model.Suppliers" class="form-select">
+                        <option value="">Select supplier...</option>
+                    </select>
+                    <span asp-validation-for="SupplierId" class="text-danger small"></span>
+                    <div class="form-text">
+                        Need a new supplier? <a asp-controller="Suppliers" asp-action="Create">Add supplier</a>.
+                    </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <label asp-for="PurchaseDate" class="form-label"></label>
+                    <input asp-for="PurchaseDate" class="form-control" />
+                    <span asp-validation-for="PurchaseDate" class="text-danger small"></span>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <label asp-for="ReferenceNumber" class="form-label"></label>
+                    <input asp-for="ReferenceNumber" class="form-control" placeholder="INV-000123" />
+                    <span asp-validation-for="ReferenceNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <div class="fw-semibold">Items</div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="addRowBtn">
+                    <i class="bi bi-plus-lg me-1"></i>Add row
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" id="itemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="min-width: 240px;">Product</th>
+                            <th class="text-end" style="min-width: 120px;">Qty</th>
+                            <th class="text-end" style="min-width: 140px;">Unit cost</th>
+                            <th class="text-end" style="min-width: 140px;">Discount</th>
+                            <th class="text-end" style="min-width: 120px;">Tax</th>
+                            <th class="text-end" style="min-width: 150px;">Line total</th>
+                            <th class="text-end" style="width: 1%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <select asp-for="Items[i].ProductId" asp-items="Model.Products" class="form-select form-select-sm product-select">
+                                        <option value="">Select product...</option>
+                                    </select>
+                                    <span asp-validation-for="Items[i].ProductId" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="Items[i].Quantity" class="form-control form-control-sm text-end qty" />
+                                    <span asp-validation-for="Items[i].Quantity" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="Items[i].UnitCost" class="form-control form-control-sm text-end unitCost" />
+                                    <span asp-validation-for="Items[i].UnitCost" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="Items[i].DiscountAmount" class="form-control form-control-sm text-end discount" />
+                                    <span asp-validation-for="Items[i].DiscountAmount" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="Items[i].TaxAmount" class="form-control form-control-sm text-end tax" />
+                                    <span asp-validation-for="Items[i].TaxAmount" class="text-danger small"></span>
+                                </td>
+                                <td class="text-end fw-semibold">
+                                    <span class="lineTotal">0.00</span>
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm removeRowBtn" title="Remove">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-end text-muted">Total</td>
+                            <td class="text-end fw-semibold"><span id="grandTotal">0.00</span></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-3">
+                <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+                <button type="submit" class="btn btn-primary">Confirm purchase</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="rowTemplate">
+    <tr>
+        <td>
+            <select name="Items[__index__].ProductId" class="form-select form-select-sm product-select">
+                <option value="">Select product...</option>
+                @foreach (var p in Model.Products)
+                {
+                    <option value="@p.Value">@p.Text</option>
+                }
+            </select>
+        </td>
+        <td><input name="Items[__index__].Quantity" value="1" class="form-control form-control-sm text-end qty" /></td>
+        <td><input name="Items[__index__].UnitCost" value="0" class="form-control form-control-sm text-end unitCost" /></td>
+        <td><input name="Items[__index__].DiscountAmount" value="0" class="form-control form-control-sm text-end discount" /></td>
+        <td><input name="Items[__index__].TaxAmount" value="0" class="form-control form-control-sm text-end tax" /></td>
+        <td class="text-end fw-semibold"><span class="lineTotal">0.00</span></td>
+        <td class="text-end">
+            <button type="button" class="btn btn-outline-danger btn-sm removeRowBtn" title="Remove">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </td>
+    </tr>
+</template>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const table = document.getElementById('itemsTable');
+            const tbody = table.querySelector('tbody');
+            const addBtn = document.getElementById('addRowBtn');
+            const rowTemplate = document.getElementById('rowTemplate').innerHTML;
+
+            function parseNum(v) {
+                const n = Number(String(v).replace(/,/g, ''));
+                return isNaN(n) ? 0 : n;
+            }
+
+            function recalc() {
+                let grand = 0;
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    const qty = parseNum(tr.querySelector('.qty')?.value);
+                    const unit = parseNum(tr.querySelector('.unitCost')?.value);
+                    const disc = parseNum(tr.querySelector('.discount')?.value);
+                    const tax = parseNum(tr.querySelector('.tax')?.value);
+                    const total = (qty * unit) - disc + tax;
+                    const safeTotal = total < 0 ? 0 : total;
+                    tr.querySelector('.lineTotal').textContent = safeTotal.toFixed(2);
+                    grand += safeTotal;
+                });
+                document.getElementById('grandTotal').textContent = grand.toFixed(2);
+            }
+
+            function reindex() {
+                Array.from(tbody.querySelectorAll('tr')).forEach((tr, idx) => {
+                    tr.querySelectorAll('input,select').forEach(el => {
+                        const name = el.getAttribute('name');
+                        if (!name) return;
+                        el.setAttribute('name', name.replace(/Items\[\d+\]/g, `Items[${idx}]`));
+                    });
+                });
+            }
+
+            addBtn.addEventListener('click', () => {
+                const idx = tbody.querySelectorAll('tr').length;
+                tbody.insertAdjacentHTML('beforeend', rowTemplate.replaceAll('__index__', idx));
+                recalc();
+            });
+
+            tbody.addEventListener('click', (e) => {
+                const btn = e.target.closest('.removeRowBtn');
+                if (!btn) return;
+                const rows = tbody.querySelectorAll('tr');
+                if (rows.length <= 1) return;
+                btn.closest('tr').remove();
+                reindex();
+                recalc();
+            });
+
+            tbody.addEventListener('input', (e) => {
+                if (e.target.matches('.qty,.unitCost,.discount,.tax')) recalc();
+            });
+
+            recalc();
+        })();
+    </script>
+}
+

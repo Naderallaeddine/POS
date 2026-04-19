@@ -279,7 +279,7 @@ namespace POS.Infrastructure.Data.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
 
                     b.HasData(
                         new
@@ -321,7 +321,7 @@ namespace POS.Infrastructure.Data.Migrations
                     b.HasIndex("BranchId", "Name")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Customer", b =>
@@ -359,7 +359,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Expense", b =>
@@ -400,7 +400,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Product", b =>
@@ -465,7 +465,7 @@ namespace POS.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasFilter("[Sku] IS NOT NULL");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Purchase", b =>
@@ -520,7 +520,7 @@ namespace POS.Infrastructure.Data.Migrations
                     b.HasIndex("BranchId", "ReferenceNumber")
                         .IsUnique();
 
-                    b.ToTable("Purchases");
+                    b.ToTable("Purchases", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.PurchaseItem", b =>
@@ -572,7 +572,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("PurchaseId");
 
-                    b.ToTable("PurchaseItems");
+                    b.ToTable("PurchaseItems", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Sale", b =>
@@ -638,7 +638,7 @@ namespace POS.Infrastructure.Data.Migrations
                     b.HasIndex("BranchId", "ReceiptNumber")
                         .IsUnique();
 
-                    b.ToTable("Sales");
+                    b.ToTable("Sales", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.SaleItem", b =>
@@ -690,7 +690,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("SaleItems");
+                    b.ToTable("SaleItems", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.StockMovement", b =>
@@ -744,7 +744,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("StockMovements");
+                    b.ToTable("StockMovements", (string)null);
                 });
 
             modelBuilder.Entity("POS.Domain.Entities.Supplier", b =>
@@ -782,7 +782,7 @@ namespace POS.Infrastructure.Data.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

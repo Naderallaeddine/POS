@@ -1,6 +1,23 @@
 @{
     ViewData["Title"] = "Purchases";
+    var success = TempData["SuccessMessage"] as string;
 }
 
-<h1 class="h3 mb-3">Purchases</h1>
-<p class="text-muted">Goods received and supplier invoices map naturally to this module.</p>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Purchases</h1>
+        <div class="text-muted small">Create supplier invoices and receive stock</div>
+    </div>
+    <a class="btn btn-primary btn-sm" asp-action="Create">New purchase</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(success))
+{
+    <div class="alert alert-success">@success</div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body text-muted">
+        Purchase listing will be added next. Use <strong>New purchase</strong> to receive stock.
+    </div>
+</div>
