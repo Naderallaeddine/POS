@@ -39,6 +39,10 @@
                    asp-controller="Sales" asp-action="Index">
                     <i class="bi bi-receipt me-2"></i>Sales
                 </a>
+                <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "SalesHistory" ? "active text-white" : "")"
+                   asp-controller="SalesHistory" asp-action="Index">
+                    <i class="bi bi-clock-history me-2"></i>Sales history
+                </a>
                 <a class="nav-link text-white-50 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Purchases" ? "active text-white" : "")"
                    asp-controller="Purchases" asp-action="Index">
                     <i class="bi bi-bag-check me-2"></i>Purchases
