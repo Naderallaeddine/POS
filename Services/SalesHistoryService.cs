@@ -97,8 +97,19 @@ public class SalesHistoryService : ISalesHistoryService
             return null;
         }
 
+        var store = await _db.StoreSettings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.BranchId == BranchSeed.DefaultBranchId, cancellationToken);
+
         return new SaleDetailsViewModel
         {
+            StoreName = store?.StoreName ?? "POS Store",
+            StoreAddress = store?.StoreAddress,
+            StorePhone = store?.StorePhone,
+            StoreEmail = store?.StoreEmail,
+            ReceiptFooter = store?.ReceiptFooter,
+            CurrencyCode = store?.CurrencyCode ?? "USD",
+            CurrencySymbol = store?.CurrencySymbol,
             Id = sale.Id,
             SaleDate = sale.SaleDate,
             ReceiptNumber = sale.ReceiptNumber,

@@ -27,5 +27,7 @@ public class Branch : AuditableEntity
     public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
 
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+
+    public StoreSettings? StoreSettings { get; set; }
 }
 

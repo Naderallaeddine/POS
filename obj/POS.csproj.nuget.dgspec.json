@@ -10,7 +10,7 @@
         "projectUniqueName": "C:\\Users\\HP\\source\\repos\\POS\\POS\\POS.csproj",
         "projectName": "POS",
         "projectPath": "C:\\Users\\HP\\source\\repos\\POS\\POS\\POS.csproj",
-        "packagesPath": "C:\\Users\\HP\\AppData\\Local\\Temp\\cursor-sandbox-cache\\d9b330bca721482f85210202be139f0d\\nuget",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\HP\\source\\repos\\POS\\POS\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [

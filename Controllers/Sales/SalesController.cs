@@ -1,3 +1,5 @@
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using POS.DTOs.Sales;
@@ -10,16 +12,31 @@ namespace POS.Controllers.Sales;
 public class SalesController : Controller
 {
     private readonly ISalesService _salesService;
+    private readonly IStoreSettingsService _storeSettingsService;
 
-    public SalesController(ISalesService salesService)
+    public SalesController(ISalesService salesService, IStoreSettingsService storeSettingsService)
     {
         _salesService = salesService;
+        _storeSettingsService = storeSettingsService;
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        return View(new PosViewModel());
+        var store = await _storeSettingsService.GetDisplayAsync(cancellationToken);
+        var storeJson = JsonSerializer.Serialize(
+            store,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            });
+
+        return View(new PosViewModel
+        {
+            Store = store,
+            StoreJson = storeJson
+        });
     }
 
     [HttpGet]

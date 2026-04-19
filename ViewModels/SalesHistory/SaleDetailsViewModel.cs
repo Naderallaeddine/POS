@@ -2,6 +2,20 @@ namespace POS.ViewModels.SalesHistory;
 
 public class SaleDetailsViewModel
 {
+    public string StoreName { get; set; } = string.Empty;
+
+    public string? StoreAddress { get; set; }
+
+    public string? StorePhone { get; set; }
+
+    public string? StoreEmail { get; set; }
+
+    public string? ReceiptFooter { get; set; }
+
+    public string CurrencyCode { get; set; } = "USD";
+
+    public string? CurrencySymbol { get; set; }
+
     public Guid Id { get; set; }
     public DateTimeOffset SaleDate { get; set; }
     public string ReceiptNumber { get; set; } = string.Empty;

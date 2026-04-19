@@ -1,10 +1,15 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using POS.Domain.Enums;
+using POS.ViewModels.Settings;
 
 namespace POS.ViewModels.Sales;
 
 public class PosViewModel
 {
+    public StoreSettingsDisplayViewModel Store { get; set; } = new();
+
+    public string StoreJson { get; set; } = "{}";
+
     public IReadOnlyList<SelectListItem> PaymentMethods { get; set; } =
         Enum.GetValues<PaymentMethod>()
             .Select(pm => new SelectListItem(pm.ToString(), ((int)pm).ToString()))

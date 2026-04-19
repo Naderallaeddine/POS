@@ -27,6 +27,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Expense> Expenses => Set<Expense>();
 
+    public DbSet<StoreSettings> StoreSettings => Set<StoreSettings>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -252,6 +254,41 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(x => x.Expenses)
                 .HasForeignKey(x => x.BranchId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<StoreSettings>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.BranchId).IsUnique();
+            e.Property(x => x.StoreName).HasMaxLength(200).IsRequired();
+            e.Property(x => x.StoreAddress).HasMaxLength(500);
+            e.Property(x => x.StorePhone).HasMaxLength(40);
+            e.Property(x => x.StoreEmail).HasMaxLength(256);
+            e.Property(x => x.TaxRatePercent).HasPrecision(9, 4);
+            e.Property(x => x.ReceiptFooter).HasMaxLength(1000);
+            e.Property(x => x.CurrencyCode).HasMaxLength(8).IsRequired();
+            e.Property(x => x.CurrencySymbol).HasMaxLength(8);
+
+            e.HasOne(x => x.Branch)
+                .WithOne(x => x.StoreSettings)
+                .HasForeignKey<StoreSettings>(x => x.BranchId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<StoreSettings>().HasData(new StoreSettings
+        {
+            Id = StoreSettingsSeed.DefaultSettingsId,
+            BranchId = BranchSeed.DefaultBranchId,
+            StoreName = "POS Store",
+            StoreAddress = null,
+            StorePhone = null,
+            StoreEmail = null,
+            TaxRatePercent = 0m,
+            ReceiptFooter = "Thank you for your purchase.",
+            CurrencyCode = "USD",
+            CurrencySymbol = "$",
+            CreatedAt = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            UpdatedAt = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero)
         });
     }
 

@@ -4,6 +4,14 @@
 }
 
 @Html.AntiForgeryToken()
+<script type="application/json" id="pos-store-settings">@Html.Raw(Model.StoreJson)</script>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-0">@Model.Store.StoreName</h1>
+        <div class="text-muted small">Point of sale · @Model.Store.CurrencyCode</div>
+    </div>
+</div>
 
 <div class="row g-3">
     <div class="col-12 col-xl-7">
@@ -82,8 +90,8 @@
                         <input id="discountInput" class="form-control form-control-sm text-end" value="0" />
                     </div>
                     <div class="col-6">
-                        <label class="form-label small text-muted">Tax</label>
-                        <input id="taxInput" class="form-control form-control-sm text-end" value="0" />
+                        <label class="form-label small text-muted">Tax <span class="fw-normal">(@Model.Store.TaxRatePercent.ToString(System.Globalization.CultureInfo.InvariantCulture)% from settings)</span></label>
+                        <input id="taxInput" class="form-control form-control-sm text-end" value="0" readonly />
                     </div>
                     <div class="col-6">
                         <label class="form-label small text-muted">Payment method</label>
@@ -115,7 +123,7 @@
                 </div>
 
                 <div class="alert alert-danger mt-3 d-none" id="errorBox"></div>
-                <div class="alert alert-success mt-3 d-none" id="successBox"></div>
+                <div class="alert alert-success mt-3 d-none text-break" id="successBox" style="white-space: pre-line;"></div>
             </div>
         </div>
     </div>
@@ -124,6 +132,9 @@
 @section Scripts {
     <script>
         (function () {
+            const store = JSON.parse(document.getElementById('pos-store-settings').textContent || '{}');
+            const taxRate = (Number(store.taxRatePercent) || 0) / 100;
+
             const searchBox = document.getElementById('searchBox');
             const resultsBody = document.getElementById('resultsBody');
             const cartBody = document.getElementById('cartBody');
@@ -151,6 +162,16 @@
                 return isNaN(n) ? 0 : n;
             }
 
+            function formatMoney(n) {
+                const code = (store.currencyCode || 'USD').toString();
+                const sym = store.currencySymbol || '';
+                try {
+                    return new Intl.NumberFormat(undefined, { style: 'currency', currency: code }).format(n);
+                } catch {
+                    return sym + n.toFixed(2);
+                }
+            }
+
             function showError(msg) {
                 errorBox.textContent = msg;
                 errorBox.classList.remove('d-none');
@@ -171,14 +192,16 @@
             function recalcTotals() {
                 const subtotal = cart.reduce((sum, i) => sum + (i.qty * i.price), 0);
                 const discount = parseNum(discountInput.value);
-                const tax = parseNum(taxInput.value);
+                const taxable = Math.max(0, subtotal - discount);
+                const tax = taxable * taxRate;
+                taxInput.value = tax.toFixed(2);
                 const grand = Math.max(0, subtotal - discount + tax);
                 const paid = parseNum(paidInput.value);
                 const change = Math.max(0, paid - grand);
 
-                subtotalText.textContent = subtotal.toFixed(2);
-                grandTotalText.textContent = grand.toFixed(2);
-                changeText.textContent = change.toFixed(2);
+                subtotalText.textContent = formatMoney(subtotal);
+                grandTotalText.textContent = formatMoney(grand);
+                changeText.textContent = formatMoney(change);
             }
 
             function renderCart() {
@@ -197,8 +220,8 @@
                         <td class="text-end">
                             <input class="form-control form-control-sm text-end qtyInput" value="${i.qty}" style="min-width: 90px;" />
                         </td>
-                        <td class="text-end">${i.price.toFixed(2)}</td>
-                        <td class="text-end fw-semibold">${(i.qty * i.price).toFixed(2)}</td>
+                        <td class="text-end">${formatMoney(i.price)}</td>
+                        <td class="text-end fw-semibold">${formatMoney(i.qty * i.price)}</td>
                         <td class="text-end">
                             <button type="button" class="btn btn-outline-danger btn-sm removeBtn" title="Remove">
                                 <i class="bi bi-x-lg"></i>
@@ -253,7 +276,7 @@
                         <tr>
                             <td class="fw-semibold">${p.name}</td>
                             <td class="text-muted">${p.barcode ?? ''}</td>
-                            <td class="text-end">${Number(p.price).toFixed(2)}</td>
+                            <td class="text-end">${formatMoney(Number(p.price))}</td>
                             <td class="text-end">${Number(p.stock).toFixed(3)}</td>
                             <td class="text-end">
                                 <button type="button" class="btn btn-primary btn-sm addBtn" data-product='${JSON.stringify(p)}'>
@@ -302,12 +325,11 @@
                 renderCart();
             });
 
-            [discountInput, taxInput, paidInput].forEach(el => el.addEventListener('input', recalcTotals));
+            [discountInput, paidInput].forEach(el => el.addEventListener('input', recalcTotals));
 
             clearCartBtn.addEventListener('click', () => {
                 cart = [];
                 discountInput.value = '0';
-                taxInput.value = '0';
                 paidInput.value = '0';
                 clearMessages();
                 renderCart();
@@ -356,7 +378,11 @@
                         showError(data.message || 'Failed to save sale.');
                         return;
                     }
-                    showSuccess('Sale completed successfully.');
+                    let msg = 'Sale completed successfully.';
+                    if (store.receiptFooter) {
+                        msg += '\n' + store.receiptFooter;
+                    }
+                    showSuccess(msg);
                     cart = [];
                     paidInput.value = '0';
                     renderCart();
