@@ -46,6 +46,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(
         "RequireAdminOrManager",
         policy => policy.RequireRole(AppRoles.Admin, AppRoles.Manager));
+    options.AddPolicy(
+        "RequireSalesAccess",
+        policy => policy.RequireRole(AppRoles.Admin, AppRoles.Manager, AppRoles.Cashier));
 });
 
 builder.Services.Configure<SeedOptions>(builder.Configuration.GetSection(SeedOptions.SectionName));
@@ -59,6 +62,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<ISalesService, SalesService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
 builder.Services.AddControllersWithViews();

@@ -1,6 +1,377 @@
+@model POS.ViewModels.Sales.PosViewModel
 @{
-    ViewData["Title"] = "Sales";
+    ViewData["Title"] = "POS";
 }
 
-<h1 class="h3 mb-3">Sales</h1>
-<p class="text-muted">Point-of-sale transactions, tenders, and receipts will be implemented here.</p>
+@Html.AntiForgeryToken()
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                    <div>
+                        <div class="fw-semibold">Product search</div>
+                        <div class="text-muted small">Search by name or barcode</div>
+                    </div>
+                    <div class="input-group" style="max-width: 420px;">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input id="searchBox" class="form-control" placeholder="Scan barcode or type to search..." autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="resultsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-nowrap">Barcode</th>
+                                <th class="text-end text-nowrap">Price</th>
+                                <th class="text-end text-nowrap">Stock</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <tr>
+                                <td colspan="5" class="text-muted">Start typing to search products.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-muted small mt-2">
+                    Tip: scanning a barcode works best when the cursor is in the search box.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <div class="fw-semibold">Cart</div>
+                        <div class="text-muted small">Review items and take payment</div>
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="clearCartBtn">Clear</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-2" id="cartTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-end text-nowrap" style="width: 120px;">Qty</th>
+                                <th class="text-end text-nowrap">Price</th>
+                                <th class="text-end text-nowrap">Total</th>
+                                <th class="text-end" style="width: 1%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            <tr>
+                                <td colspan="5" class="text-muted">Cart is empty.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label small text-muted">Discount</label>
+                        <input id="discountInput" class="form-control form-control-sm text-end" value="0" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small text-muted">Tax</label>
+                        <input id="taxInput" class="form-control form-control-sm text-end" value="0" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small text-muted">Payment method</label>
+                        <select id="paymentMethod" class="form-select form-select-sm" asp-items="Model.PaymentMethods"></select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small text-muted">Paid</label>
+                        <input id="paidInput" class="form-control form-control-sm text-end" value="0" />
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <div class="d-flex justify-content-between">
+                    <div class="text-muted">Subtotal</div>
+                    <div class="fw-semibold" id="subtotalText">0.00</div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div class="text-muted">Grand total</div>
+                    <div class="fs-4 fw-semibold" id="grandTotalText">0.00</div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div class="text-muted">Change</div>
+                    <div class="fw-semibold" id="changeText">0.00</div>
+                </div>
+
+                <div class="d-grid mt-3">
+                    <button type="button" class="btn btn-primary" id="checkoutBtn">Checkout</button>
+                </div>
+
+                <div class="alert alert-danger mt-3 d-none" id="errorBox"></div>
+                <div class="alert alert-success mt-3 d-none" id="successBox"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const searchBox = document.getElementById('searchBox');
+            const resultsBody = document.getElementById('resultsBody');
+            const cartBody = document.getElementById('cartBody');
+            const errorBox = document.getElementById('errorBox');
+            const successBox = document.getElementById('successBox');
+
+            const discountInput = document.getElementById('discountInput');
+            const taxInput = document.getElementById('taxInput');
+            const paidInput = document.getElementById('paidInput');
+            const paymentMethod = document.getElementById('paymentMethod');
+
+            const subtotalText = document.getElementById('subtotalText');
+            const grandTotalText = document.getElementById('grandTotalText');
+            const changeText = document.getElementById('changeText');
+
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const clearCartBtn = document.getElementById('clearCartBtn');
+
+            const antiforgery = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            let cart = []; // { productId, name, price, stock, qty }
+
+            function parseNum(v) {
+                const n = Number(String(v).replace(/,/g, ''));
+                return isNaN(n) ? 0 : n;
+            }
+
+            function showError(msg) {
+                errorBox.textContent = msg;
+                errorBox.classList.remove('d-none');
+                successBox.classList.add('d-none');
+            }
+
+            function showSuccess(msg) {
+                successBox.textContent = msg;
+                successBox.classList.remove('d-none');
+                errorBox.classList.add('d-none');
+            }
+
+            function clearMessages() {
+                errorBox.classList.add('d-none');
+                successBox.classList.add('d-none');
+            }
+
+            function recalcTotals() {
+                const subtotal = cart.reduce((sum, i) => sum + (i.qty * i.price), 0);
+                const discount = parseNum(discountInput.value);
+                const tax = parseNum(taxInput.value);
+                const grand = Math.max(0, subtotal - discount + tax);
+                const paid = parseNum(paidInput.value);
+                const change = Math.max(0, paid - grand);
+
+                subtotalText.textContent = subtotal.toFixed(2);
+                grandTotalText.textContent = grand.toFixed(2);
+                changeText.textContent = change.toFixed(2);
+            }
+
+            function renderCart() {
+                if (cart.length === 0) {
+                    cartBody.innerHTML = '<tr><td colspan="5" class="text-muted">Cart is empty.</td></tr>';
+                    recalcTotals();
+                    return;
+                }
+
+                cartBody.innerHTML = cart.map(i => `
+                    <tr data-id="${i.productId}">
+                        <td>
+                            <div class="fw-semibold">${i.name}</div>
+                            <div class="text-muted small">Stock: ${i.stock}</div>
+                        </td>
+                        <td class="text-end">
+                            <input class="form-control form-control-sm text-end qtyInput" value="${i.qty}" style="min-width: 90px;" />
+                        </td>
+                        <td class="text-end">${i.price.toFixed(2)}</td>
+                        <td class="text-end fw-semibold">${(i.qty * i.price).toFixed(2)}</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-outline-danger btn-sm removeBtn" title="Remove">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                recalcTotals();
+            }
+
+            function addToCart(p) {
+                clearMessages();
+                const existing = cart.find(x => x.productId === p.id);
+                if (existing) {
+                    if (existing.qty + 1 > existing.stock) {
+                        showError(`Insufficient stock for "${existing.name}".`);
+                        return;
+                    }
+                    existing.qty += 1;
+                } else {
+                    if (p.stock <= 0) {
+                        showError(`"${p.name}" is out of stock.`);
+                        return;
+                    }
+                    cart.push({ productId: p.id, name: p.name, price: p.price, stock: p.stock, qty: 1 });
+                }
+                renderCart();
+            }
+
+            async function search(term) {
+                const url = '@Url.Action("Search", "Sales")' + '?term=' + encodeURIComponent(term);
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                return await res.json();
+            }
+
+            let searchTimer = null;
+            searchBox.addEventListener('input', () => {
+                const term = searchBox.value.trim();
+                if (searchTimer) clearTimeout(searchTimer);
+                searchTimer = setTimeout(async () => {
+                    if (term.length < 2) {
+                        resultsBody.innerHTML = '<tr><td colspan="5" class="text-muted">Type at least 2 characters.</td></tr>';
+                        return;
+                    }
+                    const results = await search(term);
+                    if (!Array.isArray(results) || results.length === 0) {
+                        resultsBody.innerHTML = '<tr><td colspan="5" class="text-muted">No products found.</td></tr>';
+                        return;
+                    }
+                    resultsBody.innerHTML = results.map(p => `
+                        <tr>
+                            <td class="fw-semibold">${p.name}</td>
+                            <td class="text-muted">${p.barcode ?? ''}</td>
+                            <td class="text-end">${Number(p.price).toFixed(2)}</td>
+                            <td class="text-end">${Number(p.stock).toFixed(3)}</td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-primary btn-sm addBtn" data-product='${JSON.stringify(p)}'>
+                                    Add
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }, 180);
+            });
+
+            resultsBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('.addBtn');
+                if (!btn) return;
+                const p = JSON.parse(btn.getAttribute('data-product'));
+                addToCart({ id: p.id, name: p.name, price: Number(p.price), stock: Number(p.stock), barcode: p.barcode });
+            });
+
+            cartBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('.removeBtn');
+                if (!btn) return;
+                const tr = btn.closest('tr');
+                const id = tr.getAttribute('data-id');
+                cart = cart.filter(x => x.productId !== id);
+                renderCart();
+            });
+
+            cartBody.addEventListener('input', (e) => {
+                const input = e.target.closest('.qtyInput');
+                if (!input) return;
+                const tr = input.closest('tr');
+                const id = tr.getAttribute('data-id');
+                const item = cart.find(x => x.productId === id);
+                if (!item) return;
+                const qty = Math.floor(parseNum(input.value));
+                if (qty <= 0) {
+                    input.value = item.qty;
+                    return;
+                }
+                if (qty > item.stock) {
+                    showError(`Insufficient stock for "${item.name}".`);
+                    input.value = item.qty;
+                    return;
+                }
+                item.qty = qty;
+                renderCart();
+            });
+
+            [discountInput, taxInput, paidInput].forEach(el => el.addEventListener('input', recalcTotals));
+
+            clearCartBtn.addEventListener('click', () => {
+                cart = [];
+                discountInput.value = '0';
+                taxInput.value = '0';
+                paidInput.value = '0';
+                clearMessages();
+                renderCart();
+            });
+
+            checkoutBtn.addEventListener('click', async () => {
+                clearMessages();
+                if (cart.length === 0) {
+                    showError('Cart is empty.');
+                    return;
+                }
+
+                const subtotal = cart.reduce((sum, i) => sum + (i.qty * i.price), 0);
+                const discount = parseNum(discountInput.value);
+                const tax = parseNum(taxInput.value);
+                const total = Math.max(0, subtotal - discount + tax);
+                const paid = parseNum(paidInput.value);
+
+                if (paid < total) {
+                    showError('Paid amount is less than total.');
+                    return;
+                }
+
+                const payload = {
+                    customerId: null,
+                    paymentMethod: Number(paymentMethod.value),
+                    discountAmount: discount,
+                    taxAmount: tax,
+                    paidAmount: paid,
+                    items: cart.map(i => ({ productId: i.productId, quantity: i.qty }))
+                };
+
+                checkoutBtn.disabled = true;
+                checkoutBtn.textContent = 'Processing...';
+                try {
+                    const res = await fetch('@Url.Action("Checkout", "Sales")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': antiforgery
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.ok) {
+                        showError(data.message || 'Failed to save sale.');
+                        return;
+                    }
+                    showSuccess('Sale completed successfully.');
+                    cart = [];
+                    paidInput.value = '0';
+                    renderCart();
+                    searchBox.value = '';
+                    resultsBody.innerHTML = '<tr><td colspan="5" class="text-muted">Start typing to search products.</td></tr>';
+                } catch (err) {
+                    showError('Network error while saving sale.');
+                } finally {
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.textContent = 'Checkout';
+                }
+            });
+
+            renderCart();
+            searchBox.focus();
+        })();
+    </script>
+}
