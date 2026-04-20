@@ -1,0 +1,36 @@
+## .NET / Visual Studio
+bin/
+obj/
+out/
+
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+.vs/
+*.swp
+
+## Build / publish
+[Bb]uild/
+[Dd]ist/
+[Pp]ublish/
+
+## Logs
+*.log
+
+## Test results
+TestResults/
+**/TestResults/
+
+## Playwright (for .NET)
+playwright-report/
+playwright/.cache/
+**/playwright-report/
+**/playwright/.cache/
+
+## OS
+Thumbs.db
+Desktop.ini
+
