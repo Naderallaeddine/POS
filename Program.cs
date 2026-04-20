@@ -72,7 +72,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
 {
     app.UseDeveloperExceptionPage();
 }
@@ -82,14 +82,19 @@ else
     app.UseHsts();
 }
 
-using (var scope = app.Services.CreateScope())
+// In automated tests we host the app in-memory and provide an isolated database per test run.
+// Skipping migrations/seeding avoids cross-test interference and reduces startup time.
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
 
-    var seeder = services.GetRequiredService<IIdentityDataSeeder>();
-    await seeder.SeedAsync();
+        var seeder = services.GetRequiredService<IIdentityDataSeeder>();
+        await seeder.SeedAsync();
+    }
 }
 
 app.UseHttpsRedirection();
@@ -105,3 +110,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+public partial class Program;
